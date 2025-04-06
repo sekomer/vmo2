@@ -3,6 +3,8 @@ mod test {
     use core::panic;
 
     use crate::deserialize::deserialize;
+    use crate::metadata::Version;
+    use crate::serialize::serialize;
     use crate::traits::{Deserializable, Serializable};
     use crate::v1::serialize::Serializer;
 
@@ -48,13 +50,12 @@ mod test {
         use vmo2_types::{ast::Ast, opcode::*, value::Value};
 
         let ast = Ast::from(vec![
-            // Opcode::Literal(Value::Bool(true)),
-            // Opcode::Literal(Value::UInt(32)),
+            Opcode::Literal(Value::Bool(true)),
+            Opcode::Literal(Value::UInt(32)),
             Opcode::Literal(Value::String("abc".to_string())),
         ]);
 
-        let serializer = Serializer::new();
-        let data = serializer.serialize(&ast);
+        let data = serialize(Version::V1, &ast);
 
         println!("{:?}", data);
 

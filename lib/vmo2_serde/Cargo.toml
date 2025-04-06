@@ -7,3 +7,4 @@ edition = "2024"
 vmo2_types = { path = "../vmo2_types" }
 thiserror = "1.0"
 nom = "7.1.3"
+quickcheck = "1.0.3"
