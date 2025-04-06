@@ -1,3 +1,6 @@
+use quickcheck::{Arbitrary, Gen};
+use rand::{seq::SliceRandom, thread_rng};
+
 #[derive(Debug, PartialEq, Eq, Clone, Ord, PartialOrd)]
 pub enum Value {
     UInt(u32),
@@ -80,6 +83,20 @@ impl Value {
         match (self, rhs) {
             (Value::Bool(a), Value::Bool(b)) => Value::Bool(a ^ b),
             _ => todo!(),
+        }
+    }
+}
+
+impl Arbitrary for Value {
+    fn arbitrary(g: &mut Gen) -> Self {
+        let mut rng = thread_rng();
+        let value = [1, 2, 3].choose(&mut rng).unwrap();
+
+        match value {
+            1 => Value::Bool(Arbitrary::arbitrary(g)),
+            2 => Value::UInt(Arbitrary::arbitrary(g)),
+            3 => Value::String(Arbitrary::arbitrary(g)),
+            _ => unreachable!(),
         }
     }
 }

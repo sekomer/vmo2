@@ -1,5 +1,6 @@
 pub const MAGIC: u32 = 1986883378;
 
+#[allow(non_snake_case)]
 pub mod Version {
     pub const V1: u8 = 1;
     pub const V2: u8 = 2;

@@ -5,12 +5,12 @@ mod test {
     use crate::deserialize::deserialize;
     use crate::metadata::Version;
     use crate::serialize::serialize;
-    use crate::traits::{Deserializable, Serializable};
+    use crate::traits::Serializable;
     use crate::v1::serialize::Serializer;
 
     #[test]
     fn test_non_literal_opcodes() {
-        use vmo2_types::{ast::Ast, opcode::*, value::Value};
+        use vmo2_types::{ast::Ast, opcode::*};
 
         let ast = Ast::from(vec![
             Opcode::Halt,
@@ -63,5 +63,26 @@ mod test {
             Ok(deserialized_ast) => assert_eq!(ast, deserialized_ast),
             Err(e) => panic!("failed to deserialize: {:?}", e),
         }
+    }
+
+    #[test]
+    fn test_quickcheck_v1() {
+        /**
+         * magic ✨
+         */
+        use vmo2_types::ast::Ast;
+
+        fn test_ast(ast: Ast) -> bool {
+            println!("ast: {:?}", ast);
+
+            let data = serialize(Version::V1, &ast);
+            if let Ok(deserialized_ast) = deserialize(&data) {
+                ast == deserialized_ast
+            } else {
+                false
+            }
+        }
+
+        quickcheck::quickcheck(test_ast as fn(Ast) -> bool);
     }
 }
