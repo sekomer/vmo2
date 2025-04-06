@@ -1,0 +1,9 @@
+[package]
+name = "vmo2_serde"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+vmo2_types = { path = "../vmo2_types" }
+thiserror = "1.0"
+nom = "7.1.3"

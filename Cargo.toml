@@ -1,0 +1,9 @@
+[package]
+name = "vmo2"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+vmo2_vm = { path = "lib/vmo2_vm" }
+vmo2_types = { path = "lib/vmo2_types" }
+vmo2_serde = { path = "lib/vmo2_serde" }

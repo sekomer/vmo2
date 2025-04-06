@@ -1,0 +1,69 @@
+------------------
+---- SECTIONS ----
+------------------
+
+[metadata]
+magic_number
+version
+
+[code]
+
+-----------------
+---- OPCODES ----
+-----------------
+
+----------
+OPCODES
+----------
+0 HALT
+1 LITERAL
+2 ARITHMETIC
+3 LOGIC
+4 COMPARISON
+5 MEMORY
+6 IO
+
+----------
+LITERAL
+----------
+0 INT    4 bytes
+1 BOOL   1 byte
+2 STRING 2 byte (len) + len byte (chars)
+
+----------
+ARITHMETIC
+----------
+0 ADD
+1 SUB
+2 MUL
+3 DIV
+
+----------
+LOGIC
+----------
+0 AND
+1 OR
+2 XOR
+3 NOT
+
+----------
+COMPARISON
+----------
+0 EQ
+1 NE
+2 LT
+3 LE
+4 GT
+5 GE
+
+----------
+MEMORY
+----------
+0 LOAD
+1 STORE
+
+----------
+IO
+----------
+0 PRINT
+1 SCAN
