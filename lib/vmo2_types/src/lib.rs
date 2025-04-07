@@ -1,3 +1,3 @@
-pub mod ast;
+pub mod bytecode;
 pub mod opcode;
 pub mod value;

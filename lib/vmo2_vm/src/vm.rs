@@ -2,7 +2,7 @@ use crate::profile;
 use std::collections::HashMap;
 
 use vmo2_types::{
-    ast, opcode,
+    bytecode, opcode,
     value::{self, Value},
 };
 
@@ -11,7 +11,7 @@ pub struct VM {
     pub heap: HashMap<String, value::Value>,
     pub pc: usize,
     pub call_stack: Vec<usize>,
-    pub ast: ast::Ast,
+    pub bytecode: bytecode::ByteCode,
     pub debug: bool,
     pub profile: profile::Profile,
 }
@@ -32,9 +32,9 @@ pub enum VMError {
 }
 
 impl VM {
-    pub fn new(ast: ast::Ast) -> Self {
+    pub fn new(bytecode: bytecode::ByteCode) -> Self {
         Self {
-            ast,
+            bytecode,
             stack: vec![],
             call_stack: vec![],
             heap: HashMap::new(),
@@ -57,7 +57,7 @@ impl VM {
     }
 
     fn step(&mut self) -> VMResult {
-        let opcode = self.ast.opcodes[self.pc].clone();
+        let opcode = self.bytecode.opcodes[self.pc].clone();
         self.pc += 1;
         self.profile.total_instructions += 1;
 

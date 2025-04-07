@@ -10,9 +10,9 @@ mod test {
 
     #[test]
     fn test_non_literal_opcodes() {
-        use vmo2_types::{ast::Ast, opcode::*};
+        use vmo2_types::{bytecode::ByteCode, opcode::*};
 
-        let ast = Ast::from(vec![
+        let bytecode = ByteCode::from(vec![
             Opcode::Halt,
             Opcode::Arithmetic(ArithmeticOpcode::Add),
             Opcode::Arithmetic(ArithmeticOpcode::Sub),
@@ -35,32 +35,32 @@ mod test {
         ]);
 
         let serializer = Serializer::new();
-        let data = serializer.serialize(&ast);
+        let data = serializer.serialize(&bytecode);
 
         println!("{:?}", data);
 
         match deserialize(&data) {
-            Ok(deserialized_ast) => assert_eq!(ast, deserialized_ast),
+            Ok(deserialized_bytecode) => assert_eq!(bytecode, deserialized_bytecode),
             Err(e) => panic!("failed to deserialize: {:?}", e),
         }
     }
 
     #[test]
     fn test_literal_opcodes() {
-        use vmo2_types::{ast::Ast, opcode::*, value::Value};
+        use vmo2_types::{bytecode::ByteCode, opcode::*, value::Value};
 
-        let ast = Ast::from(vec![
+        let bytecode = ByteCode::from(vec![
             Opcode::Literal(Value::Bool(true)),
             Opcode::Literal(Value::UInt(32)),
             Opcode::Literal(Value::String("abc".to_string())),
         ]);
 
-        let data = serialize(Version::V1, &ast);
+        let data = serialize(Version::V1, &bytecode);
 
         println!("{:?}", data);
 
         match deserialize(&data) {
-            Ok(deserialized_ast) => assert_eq!(ast, deserialized_ast),
+            Ok(deseri) => assert_eq!(bytecode, deseri),
             Err(e) => panic!("failed to deserialize: {:?}", e),
         }
     }
@@ -70,19 +70,19 @@ mod test {
         /**
          * magic ✨
          */
-        use vmo2_types::ast::Ast;
+        use vmo2_types::bytecode::ByteCode;
 
-        fn test_ast(ast: Ast) -> bool {
-            println!("ast: {:?}", ast);
+        fn test_bytecode(bytecode: ByteCode) -> bool {
+            println!("bytecode: {:?}", bytecode);
 
-            let data = serialize(Version::V1, &ast);
-            if let Ok(deserialized_ast) = deserialize(&data) {
-                ast == deserialized_ast
+            let data = serialize(Version::V1, &bytecode);
+            if let Ok(deseri) = deserialize(&data) {
+                bytecode == deseri
             } else {
                 false
             }
         }
 
-        quickcheck::quickcheck(test_ast as fn(Ast) -> bool);
+        quickcheck::quickcheck(test_bytecode as fn(ByteCode) -> bool);
     }
 }

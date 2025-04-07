@@ -4,12 +4,12 @@ mod tests {
     fn test_arithmetic_with_memory() {
         use crate::vm::VM;
         use vmo2_types::{
-            ast::Ast,
+            bytecode::ByteCode,
             opcode::{ArithmeticOpcode, MemoryOpcode, Opcode::*},
             value::Value,
         };
 
-        let ast = Ast::from(vec![
+        let bytecode = ByteCode::from(vec![
             // Store x = 3
             Literal(Value::UInt(3)),
             Literal(Value::String("x".to_owned())),
@@ -29,7 +29,7 @@ mod tests {
             Halt,
         ]);
 
-        let mut vm = VM::new(ast);
+        let mut vm = VM::new(bytecode);
         _ = vm.run().unwrap();
 
         assert_eq!(vm.stack.pop().unwrap(), Value::UInt(7));

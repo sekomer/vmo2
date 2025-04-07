@@ -1,7 +1,7 @@
 use crate::metadata::MAGIC;
 use crate::traits::Serializable;
 use crate::v1::opcode::*;
-use vmo2_types::ast;
+use vmo2_types::bytecode;
 use vmo2_types::opcode::{FlowOpcode, Opcode};
 use vmo2_types::value::Value;
 
@@ -22,13 +22,13 @@ impl Serializer {
 impl Serializable for Serializer {
     type Output = Vec<u8>;
 
-    fn serialize(&self, ast: &ast::Ast) -> Self::Output {
+    fn serialize(&self, bytecode: &bytecode::ByteCode) -> Self::Output {
         let mut data = Vec::new();
 
         data.extend(self.magic_number.to_le_bytes());
         data.push(self.version);
 
-        for opcode in ast.opcodes.iter() {
+        for opcode in bytecode.opcodes.iter() {
             match opcode {
                 Opcode::Literal(value) => {
                     data.push(get_opcode_byte(opcode));

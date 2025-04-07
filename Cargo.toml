@@ -10,5 +10,9 @@ vmo2_serde = { path = "lib/vmo2_serde" }
 clap = { version = "4.5.35", features = ["derive"] }
 
 [[bin]]
+name = "vmo2"
+path = "src/vmo2.rs"
+
+[[bin]]
 name = "compiler"
 path = "src/compiler.rs"

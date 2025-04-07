@@ -3,11 +3,11 @@ use quickcheck::{Arbitrary, Gen};
 use rand::{Rng, thread_rng};
 
 #[derive(Debug, PartialEq, Eq, Clone)]
-pub struct Ast {
+pub struct ByteCode {
     pub opcodes: Vec<Opcode>,
 }
 
-impl Ast {
+impl ByteCode {
     pub fn new() -> Self {
         Self { opcodes: vec![] }
     }
@@ -17,23 +17,23 @@ impl Ast {
     }
 }
 
-impl From<Vec<Opcode>> for Ast {
+impl From<Vec<Opcode>> for ByteCode {
     fn from(opcodes: Vec<Opcode>) -> Self {
         Self { opcodes }
     }
 }
 
-impl Arbitrary for Ast {
+impl Arbitrary for ByteCode {
     fn arbitrary(g: &mut Gen) -> Self {
         let mut rng = thread_rng();
-        let mut ast = Ast::new();
+        let mut bytecode = ByteCode::new();
 
         for _ in 0..rng.gen_range(0..256) {
-            ast.add_opcode(Opcode::arbitrary(g));
+            bytecode.add_opcode(Opcode::arbitrary(g));
         }
 
-        ast.opcodes.push(Opcode::Halt);
+        bytecode.opcodes.push(Opcode::Halt);
 
-        ast
+        bytecode
     }
 }

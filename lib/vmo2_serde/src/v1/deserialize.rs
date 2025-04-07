@@ -10,7 +10,7 @@ use nom::{
     multi::{length_count, many1},
     sequence,
 };
-use vmo2_types::ast;
+use vmo2_types::bytecode;
 use vmo2_types::opcode::*;
 use vmo2_types::value::Value;
 
@@ -224,12 +224,12 @@ fn parser(input: &[u8]) -> IResult<&[u8], Opcode> {
 }
 
 impl Deserializable for Deserializer {
-    fn deserialize(&self, input: &Vec<u8>) -> Result<ast::Ast, DeserializationError> {
+    fn deserialize(&self, input: &Vec<u8>) -> Result<bytecode::ByteCode, DeserializationError> {
         match many1(parser)(input) {
-            Ok((_, opcode)) => Ok(ast::Ast::from(opcode)),
+            Ok((_, opcode)) => Ok(bytecode::ByteCode::from(opcode)),
             Err(e) => {
                 eprintln!("error: {:?}", e);
-                Err(DeserializationError::InvalidAst)
+                Err(DeserializationError::InvalidByteCode)
             }
         }
     }
