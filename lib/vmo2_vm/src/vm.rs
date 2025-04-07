@@ -1,12 +1,16 @@
 use crate::profile;
 use std::collections::HashMap;
 
-use vmo2_types::{ast, opcode, value};
+use vmo2_types::{
+    ast, opcode,
+    value::{self, Value},
+};
 
 pub struct VM {
     pub stack: Vec<value::Value>,
     pub heap: HashMap<String, value::Value>,
     pub pc: usize,
+    pub call_stack: Vec<usize>,
     pub ast: ast::Ast,
     pub debug: bool,
     pub profile: profile::Profile,
@@ -32,6 +36,7 @@ impl VM {
         Self {
             ast,
             stack: vec![],
+            call_stack: vec![],
             heap: HashMap::new(),
             pc: 0,
             debug: false,
@@ -154,6 +159,54 @@ impl VM {
                         return VMResult::Ok;
                     }
                 }
+            }
+            Flow(flow) => {
+                use opcode::FlowOpcode;
+                match flow {
+                    FlowOpcode::JumpIfTrue(label) => {
+                        let value = self.stack.pop().unwrap();
+                        if value == Value::Bool(true) {
+                            self.pc = label as usize;
+                        }
+                        VMResult::Ok
+                    }
+                    FlowOpcode::JumpIfFalse(label) => {
+                        let value = self.stack.pop().unwrap();
+                        if value == Value::Bool(false) {
+                            self.pc = label as usize;
+                        }
+                        VMResult::Ok
+                    }
+                    FlowOpcode::Jump(label) => {
+                        self.pc = label as usize;
+                        VMResult::Ok
+                    }
+                    FlowOpcode::Call(label) => {
+                        self.call_stack.push(self.pc);
+                        self.pc = label as usize;
+                        VMResult::Ok
+                    }
+                    FlowOpcode::Return => {
+                        self.pc = self.call_stack.pop().unwrap();
+                        VMResult::Ok
+                    }
+                }
+            }
+            Dup => {
+                let value = self.stack.last().unwrap();
+                self.stack.push(value.clone());
+                VMResult::Ok
+            }
+            Pop => {
+                self.stack.pop();
+                VMResult::Ok
+            }
+            Swap => {
+                let a = self.stack.pop().unwrap();
+                let b = self.stack.pop().unwrap();
+                self.stack.push(a);
+                self.stack.push(b);
+                VMResult::Ok
             }
             Halt => {
                 return VMResult::Halt;

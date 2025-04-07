@@ -2,7 +2,7 @@ use crate::metadata::MAGIC;
 use crate::traits::Serializable;
 use crate::v1::opcode::*;
 use vmo2_types::ast;
-use vmo2_types::opcode::Opcode;
+use vmo2_types::opcode::{FlowOpcode, Opcode};
 use vmo2_types::value::Value;
 
 pub struct Serializer {
@@ -68,7 +68,35 @@ impl Serializable for Serializer {
                     data.push(get_opcode_byte(opcode));
                     data.push(get_io_opcode_byte(io));
                 }
+                Opcode::Flow(flow) => {
+                    data.push(get_opcode_byte(opcode));
+                    data.push(get_flow_opcode_byte(flow));
+                    match flow {
+                        FlowOpcode::JumpIfFalse(v) => {
+                            data.extend(v.to_le_bytes());
+                        }
+                        FlowOpcode::JumpIfTrue(v) => {
+                            data.extend(v.to_le_bytes());
+                        }
+                        FlowOpcode::Jump(v) => {
+                            data.extend(v.to_le_bytes());
+                        }
+                        FlowOpcode::Call(v) => {
+                            data.extend(v.to_le_bytes());
+                        }
+                        FlowOpcode::Return => {}
+                    }
+                }
                 Opcode::Halt => {
+                    data.push(get_opcode_byte(opcode));
+                }
+                Opcode::Dup => {
+                    data.push(get_opcode_byte(opcode));
+                }
+                Opcode::Pop => {
+                    data.push(get_opcode_byte(opcode));
+                }
+                Opcode::Swap => {
                     data.push(get_opcode_byte(opcode));
                 }
             }

@@ -23,8 +23,10 @@ impl Deserializer {
 }
 
 fn parser(input: &[u8]) -> IResult<&[u8], Opcode> {
+    // * HALT
     let halt_parser = combinator::value(Opcode::Halt, tag([OPCODE::HALT]));
 
+    // * LITERAL
     let int_literal_parser = sequence::preceded(
         tag([OPCODE::LITERAL_UINT]),
         combinator::map(bytes::complete::take(4u8), |bytes: &[u8]| {
@@ -62,6 +64,7 @@ fn parser(input: &[u8]) -> IResult<&[u8], Opcode> {
         )),
     );
 
+    // * ARITHMETIC
     let arithmetic_parser = sequence::preceded(
         tag([OPCODE::ARITHMETIC]),
         branch::alt((
@@ -84,6 +87,7 @@ fn parser(input: &[u8]) -> IResult<&[u8], Opcode> {
         )),
     );
 
+    // * LOGIC
     let logic_parser = sequence::preceded(
         tag([OPCODE::LOGIC]),
         branch::alt((
@@ -94,6 +98,7 @@ fn parser(input: &[u8]) -> IResult<&[u8], Opcode> {
         )),
     );
 
+    // * COMPARISION
     let comparison_parser = sequence::preceded(
         tag([OPCODE::COMPARISON]),
         branch::alt((
@@ -124,6 +129,7 @@ fn parser(input: &[u8]) -> IResult<&[u8], Opcode> {
         )),
     );
 
+    // * MEMORY
     let memory_parser = sequence::preceded(
         tag([OPCODE::MEMORY]),
         branch::alt((
@@ -138,6 +144,7 @@ fn parser(input: &[u8]) -> IResult<&[u8], Opcode> {
         )),
     );
 
+    // * IO
     let io_parser = sequence::preceded(
         tag([OPCODE::IO]),
         branch::alt((
@@ -145,6 +152,61 @@ fn parser(input: &[u8]) -> IResult<&[u8], Opcode> {
             combinator::value(Opcode::IO(IOOpcode::Scan), tag([OPCODE::IO_SCAN])),
         )),
     );
+
+    // * FLOW
+    let flow_jump_if_true_parser = sequence::preceded(
+        tag([OPCODE::FLOW_JUMP_IF_TRUE]),
+        combinator::map(bytes::complete::take(4u8), |bytes: &[u8]| {
+            Opcode::Flow(FlowOpcode::JumpIfTrue(u32::from_le_bytes(
+                bytes.try_into().unwrap(),
+            )))
+        }),
+    );
+    let flow_jump_if_false_parser = sequence::preceded(
+        tag([OPCODE::FLOW_JUMP_IF_FALSE]),
+        combinator::map(bytes::complete::take(4u8), |bytes: &[u8]| {
+            Opcode::Flow(FlowOpcode::JumpIfFalse(u32::from_le_bytes(
+                bytes.try_into().unwrap(),
+            )))
+        }),
+    );
+    let flow_jump_parser = sequence::preceded(
+        tag([OPCODE::FLOW_JUMP]),
+        combinator::map(bytes::complete::take(4u8), |bytes: &[u8]| {
+            Opcode::Flow(FlowOpcode::Jump(u32::from_le_bytes(
+                bytes.try_into().unwrap(),
+            )))
+        }),
+    );
+    let flow_call_parser = sequence::preceded(
+        tag([OPCODE::FLOW_CALL]),
+        combinator::map(bytes::complete::take(4u8), |bytes: &[u8]| {
+            Opcode::Flow(FlowOpcode::Call(u32::from_le_bytes(
+                bytes.try_into().unwrap(),
+            )))
+        }),
+    );
+    let flow_return_parser =
+        combinator::value(Opcode::Flow(FlowOpcode::Return), tag([OPCODE::FLOW_RETURN]));
+    let flow_parser = sequence::preceded(
+        tag([OPCODE::FLOW]),
+        branch::alt((
+            flow_jump_if_false_parser,
+            flow_jump_if_true_parser,
+            flow_jump_parser,
+            flow_call_parser,
+            flow_return_parser,
+        )),
+    );
+
+    // * DUP
+    let dup_parser = combinator::value(Opcode::Dup, tag([OPCODE::DUP]));
+
+    // * POP
+    let pop_parser = combinator::value(Opcode::Pop, tag([OPCODE::POP]));
+
+    // * SWAP
+    let swap_parser = combinator::value(Opcode::Swap, tag([OPCODE::SWAP]));
 
     branch::alt((
         halt_parser,
@@ -154,6 +216,10 @@ fn parser(input: &[u8]) -> IResult<&[u8], Opcode> {
         memory_parser,
         io_parser,
         literal_parser,
+        flow_parser,
+        dup_parser,
+        pop_parser,
+        swap_parser,
     ))(input)
 }
 

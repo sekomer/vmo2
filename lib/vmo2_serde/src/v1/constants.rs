@@ -7,6 +7,10 @@ pub mod OPCODE {
     pub const COMPARISON: u8 = 4;
     pub const MEMORY: u8 = 5;
     pub const IO: u8 = 6;
+    pub const FLOW: u8 = 7;
+    pub const DUP: u8 = 8;
+    pub const POP: u8 = 9;
+    pub const SWAP: u8 = 10;
 
     pub const LITERAL_UINT: u8 = 0;
     pub const LITERAL_BOOL: u8 = 1;
@@ -34,4 +38,10 @@ pub mod OPCODE {
 
     pub const IO_PRINT: u8 = 0;
     pub const IO_SCAN: u8 = 1;
+
+    pub const FLOW_JUMP_IF_FALSE: u8 = 0;
+    pub const FLOW_JUMP_IF_TRUE: u8 = 1;
+    pub const FLOW_JUMP: u8 = 2;
+    pub const FLOW_CALL: u8 = 3;
+    pub const FLOW_RETURN: u8 = 4;
 }

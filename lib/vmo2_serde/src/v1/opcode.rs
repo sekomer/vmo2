@@ -1,7 +1,5 @@
 use crate::v1::constants::OPCODE;
-use vmo2_types::opcode::{
-    ArithmeticOpcode, ComparisonOpcode, IOOpcode, LogicOpcode, MemoryOpcode, Opcode,
-};
+use vmo2_types::opcode::*;
 use vmo2_types::value::Value;
 
 pub fn get_opcode_byte(opcode: &Opcode) -> u8 {
@@ -13,6 +11,10 @@ pub fn get_opcode_byte(opcode: &Opcode) -> u8 {
         Opcode::Comparison(_) => OPCODE::COMPARISON,
         Opcode::Memory(_) => OPCODE::MEMORY,
         Opcode::IO(_) => OPCODE::IO,
+        Opcode::Flow(_) => OPCODE::FLOW,
+        Opcode::Dup => OPCODE::DUP,
+        Opcode::Pop => OPCODE::POP,
+        Opcode::Swap => OPCODE::SWAP,
     }
 }
 
@@ -64,5 +66,15 @@ pub fn get_io_opcode_byte(opcode: &IOOpcode) -> u8 {
     match opcode {
         IOOpcode::Print => OPCODE::IO_PRINT,
         IOOpcode::Scan => OPCODE::IO_SCAN,
+    }
+}
+
+pub fn get_flow_opcode_byte(opcode: &FlowOpcode) -> u8 {
+    match opcode {
+        FlowOpcode::JumpIfFalse(_) => OPCODE::FLOW_JUMP_IF_FALSE,
+        FlowOpcode::JumpIfTrue(_) => OPCODE::FLOW_JUMP_IF_TRUE,
+        FlowOpcode::Jump(_) => OPCODE::FLOW_JUMP,
+        FlowOpcode::Call(_) => OPCODE::FLOW_CALL,
+        FlowOpcode::Return => OPCODE::FLOW_RETURN,
     }
 }
