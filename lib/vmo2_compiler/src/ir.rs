@@ -143,8 +143,8 @@ pub fn expression_to_ir(expression: &AstExpression) -> Vec<IrInstruction> {
         }
         AstExpression::BinaryOperation(op, left, right) => {
             let mut instructions = Vec::new();
-            instructions.extend(expression_to_ir(left));
             instructions.extend(expression_to_ir(right));
+            instructions.extend(expression_to_ir(left));
 
             let op_instruction = match op.as_str() {
                 "+" => IrInstruction::Add,
@@ -157,7 +157,7 @@ pub fn expression_to_ir(expression: &AstExpression) -> Vec<IrInstruction> {
                 ">" => IrInstruction::Gt,
                 "<=" => IrInstruction::Le,
                 ">=" => IrInstruction::Ge,
-                _ => IrInstruction::NoOp,
+                _ => unreachable!(),
             };
 
             instructions.push(op_instruction);
