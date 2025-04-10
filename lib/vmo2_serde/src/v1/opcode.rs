@@ -23,6 +23,7 @@ pub fn get_literal_opcode_byte(value: &Value) -> u8 {
         Value::UInt(_) => OPCODE::LITERAL_UINT,
         Value::Bool(_) => OPCODE::LITERAL_BOOL,
         Value::String(_) => OPCODE::LITERAL_STRING,
+        Value::Null => OPCODE::LITERAL_NULL,
     }
 }
 

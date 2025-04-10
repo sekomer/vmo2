@@ -55,12 +55,15 @@ fn parser(input: &[u8]) -> IResult<&[u8], Opcode> {
             },
         ),
     );
+    let null_literal_parser =
+        combinator::value(Opcode::Literal(Value::Null), tag([OPCODE::LITERAL_NULL]));
     let literal_parser = sequence::preceded(
         tag([OPCODE::LITERAL]),
         branch::alt((
             bool_literal_parser,
             int_literal_parser,
             string_literal_parser,
+            null_literal_parser,
         )),
     );
 

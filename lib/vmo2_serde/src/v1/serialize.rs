@@ -46,6 +46,9 @@ impl Serializable for Serializer {
                             data.extend((v.len() as u16).to_le_bytes());
                             data.extend(v.as_bytes());
                         }
+                        Value::Null => {
+                            data.push(get_literal_opcode_byte(value));
+                        }
                     }
                 }
                 Opcode::Arithmetic(arith) => {
