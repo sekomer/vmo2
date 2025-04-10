@@ -22,5 +22,6 @@ members = [
     ".",
     "lib/vmo2_vm",
     "lib/vmo2_types",
-    "lib/vmo2_serde"
+    "lib/vmo2_serde",
+    "lib/vmo2_compiler"
 ]

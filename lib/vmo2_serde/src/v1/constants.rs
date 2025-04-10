@@ -15,6 +15,7 @@ pub mod OPCODE {
     pub const LITERAL_UINT: u8 = 0;
     pub const LITERAL_BOOL: u8 = 1;
     pub const LITERAL_STRING: u8 = 2;
+    pub const LITERAL_NULL: u8 = 3;
 
     pub const ARITHMETIC_ADD: u8 = 0;
     pub const ARITHMETIC_SUB: u8 = 1;
