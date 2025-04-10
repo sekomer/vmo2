@@ -1,0 +1,59 @@
+/*
+    * Oxyde Language Grammar
+    * This file defines the grammar for the Oxyde programming language.
+    * It is written in Pest, a PEG parser generator for Rust.
+    * @version 0.1.0
+*/
+program = { SOI ~ statement ~ (";" ~ statement)* ~ ";"? ~ EOI }
+
+// statements
+statements = { statement ~ (";" ~ statement)* }
+statement = { assignment | function_definition | while_statement | expression }
+expression = { literal | variable | function_call | binary_operation }
+
+// assignment
+assignment = { identifier ~ "=" ~ expression }
+
+// identifier
+identifier = @{ ("_" | ASCII_ALPHA) ~ (ASCII_ALPHANUMERIC | "_")* }
+
+// function
+function_definition = { "func" ~ identifier ~ "(" ~ parameters? ~ ")" ~ "{" ~ statements ~ "}" }
+parameters = { identifier ~ ("," ~ identifier)* }
+
+// binary operation
+binary_operation = { left ~ operator ~ right }
+left = { identifier | literal }
+operator = { "+" | "-" | "*" | "/" | "%" | "==" | "!=" | ">" | "<" | ">=" | "<=" }
+right = { identifier | literal }
+
+// literal
+literal = { number | string | bool | null }
+
+// variable
+variable = { identifier }
+
+// function call
+function_call = { identifier ~ "(" ~ arguments? ~ ")" }
+arguments = { expression ~ ("," ~ expression)* }
+
+// while statement
+while_statement = { "while" ~ "(" ~ condition ~ ")" ~ "{" ~ statements ~ "}" }
+condition = { expression }
+
+// string
+string  = @{ "\"" ~ inner ~ "\"" }
+inner   = @{ (!("\"" | "\\") ~ ANY)* ~ (escape ~ inner)? }
+escape  = @{ "\\" ~ ("\"" | "\\" | "/" | "b" | "f" | "n" | "r" | "t" | unicode) }
+unicode = @{ "u" ~ ASCII_HEX_DIGIT{4} }
+
+// number
+number = @{ "-"? ~ int ~ ("." ~ ASCII_DIGIT+ ~ exp? | exp)? }
+int    = @{ "0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT* }
+exp    = @{ ("E" | "e") ~ ("+" | "-")? ~ ASCII_DIGIT+ }
+
+bool = { "true" | "false" }
+
+null = { "null" }
+
+WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
