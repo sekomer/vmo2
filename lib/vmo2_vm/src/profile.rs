@@ -1,6 +1,6 @@
 #[derive(Debug, Clone)]
 pub struct Profile {
-    pub total_instructions: usize,
+    pub executed_instructions: usize,
     pub total_memory_reads: usize,
     pub total_memory_writes: usize,
     pub total_stack_pushes: usize,
@@ -10,7 +10,7 @@ pub struct Profile {
 impl Profile {
     pub fn new() -> Self {
         Self {
-            total_instructions: 0,
+            executed_instructions: 0,
             total_memory_reads: 0,
             total_memory_writes: 0,
             total_stack_pushes: 0,

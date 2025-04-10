@@ -59,7 +59,7 @@ impl VM {
     fn step(&mut self) -> VMResult {
         let opcode = self.bytecode.opcodes[self.pc].clone();
         self.pc += 1;
-        self.profile.total_instructions += 1;
+        self.profile.executed_instructions += 1;
 
         use opcode::Opcode::*;
         match opcode {
