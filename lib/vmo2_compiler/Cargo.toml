@@ -1,0 +1,10 @@
+[package]
+name = "vmo2_compiler"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+vmo2_types = { path = "../vmo2_types" }
+vmo2_vm = { path = "../vmo2_vm" }
+pest = "2.8.0"
+pest_derive = "2.8.0"
