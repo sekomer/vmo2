@@ -55,6 +55,7 @@ pub enum IrInstruction {
     // Other
     Print,
     NoOp,
+    Neg,
 }
 
 #[derive(Debug, Clone)]
@@ -140,6 +141,16 @@ pub fn expression_to_ir(expression: &AstExpression) -> Vec<IrInstruction> {
         }
         AstExpression::Variable(name) => {
             vec![IrInstruction::Load(name.clone())]
+        }
+        AstExpression::UnaryOperation(op, expr) => {
+            let mut instructions = Vec::new();
+            instructions.extend(expression_to_ir(expr));
+            let op_instruction = match op.as_str() {
+                "-" => IrInstruction::Neg,
+                _ => unreachable!(),
+            };
+            instructions.push(op_instruction);
+            instructions
         }
         AstExpression::BinaryOperation(op, left, right) => {
             let mut instructions = Vec::new();
