@@ -51,8 +51,8 @@ parameters = {
 // ---------------------
 
 expression = {
-    primary_expr
-  | equality_expr
+    equality_expr
+  | primary_expr
 }
 
 equality_expr = {
@@ -72,7 +72,9 @@ multiplicative_expr = {
 }
 
 unary_expr = {
-    ("+" | "-")* ~ primary_expr
+    primary_expr
+  | ("+" ~ primary_expr)
+  | ("-" ~ primary_expr)
 }
 
 // ---------------------
@@ -81,8 +83,8 @@ unary_expr = {
 
 primary_expr = {
     function_call
-  | identifier
   | literal
+  | identifier
   | "(" ~ expression ~ ")"
 }
 

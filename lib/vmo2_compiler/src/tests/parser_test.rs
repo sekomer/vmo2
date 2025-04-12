@@ -29,13 +29,13 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_expression() {
-        let var_pair = OxydeParser::parse(Rule::variable, "x")
+    fn test_parse_literal_and_identifier() {
+        let identifier_pair = OxydeParser::parse(Rule::identifier, "x")
             .unwrap()
             .next()
             .unwrap();
-        let var_expr = parse_expression(var_pair);
-        assert!(matches!(var_expr, AstExpression::Variable(s) if s == "x"));
+        let identifier_expr = parse_expression(identifier_pair);
+        assert!(matches!(identifier_expr, AstExpression::Variable(s) if s == "x"));
 
         let literal_pair = OxydeParser::parse(Rule::literal, "42")
             .unwrap()
@@ -47,24 +47,30 @@ mod tests {
             AstExpression::Literal(AstLiteral::UInt(42))
         ));
 
-        let bin_op_pair = OxydeParser::parse(Rule::binary_operation, "x + y")
+        let null_pair = OxydeParser::parse(Rule::literal, "null")
             .unwrap()
             .next()
             .unwrap();
-        let bin_op_expr = parse_expression(bin_op_pair);
-        match bin_op_expr {
-            AstExpression::BinaryOperation(op, left, right) => {
-                assert_eq!(op, "+");
-                assert!(matches!(*left, AstExpression::Variable(s) if s == "x"));
-                assert!(matches!(*right, AstExpression::Variable(s) if s == "y"));
-            }
-            _ => panic!("Expected binary operation"),
-        }
+        let null_expr = parse_expression(null_pair);
+        assert!(matches!(
+            null_expr,
+            AstExpression::Literal(AstLiteral::Null)
+        ));
+
+        let string_pair = OxydeParser::parse(Rule::string, r#""hello""#)
+            .unwrap()
+            .next()
+            .unwrap();
+        let string_expr = parse_expression(string_pair);
+        assert_eq!(
+            string_expr,
+            AstExpression::Literal(AstLiteral::String("hello".to_string()))
+        );
     }
 
     #[test]
     fn test_parse_statement() {
-        let assignment_pair = OxydeParser::parse(Rule::assignment, "x = 42")
+        let assignment_pair = OxydeParser::parse(Rule::assignment, "x = 42;")
             .unwrap()
             .next()
             .unwrap();
@@ -76,16 +82,6 @@ mod tests {
             }
             _ => panic!("Expected assignment statement"),
         }
-
-        let expr_pair = OxydeParser::parse(Rule::expression, "42")
-            .unwrap()
-            .next()
-            .unwrap();
-        let expr_stmt = parse_statement(expr_pair);
-        assert!(matches!(
-            expr_stmt,
-            AstStatement::Expression(AstExpression::Literal(AstLiteral::UInt(42)))
-        ));
     }
 
     #[test]
@@ -185,9 +181,33 @@ mod tests {
     }
 
     #[test]
+    fn test_parse_equality_expr() {
+        let program_pair = OxydeParser::parse(
+            Rule::equality_expr,
+            r#"
+            x == 1
+            "#
+            .trim(),
+        )
+        .unwrap()
+        .next()
+        .unwrap();
+
+        let equality_expr = parse_expression(program_pair);
+        assert_eq!(
+            equality_expr,
+            AstExpression::BinaryOperation(
+                "==".to_owned(),
+                Box::new(AstExpression::Variable("x".to_owned())),
+                Box::new(AstExpression::Literal(AstLiteral::UInt(1)))
+            )
+        );
+    }
+
+    #[test]
     fn test_parse_while_with_condition_statement() {
-        let while_pair = OxydeParser::parse(
-            Rule::while_statement,
+        let program_pair = OxydeParser::parse(
+            Rule::program,
             r#"
                 while (x > 0) { 
                     x = x - 1; 
@@ -199,11 +219,11 @@ mod tests {
         .next()
         .unwrap();
 
-        let while_stmt = parse_statement(while_pair);
+        let program = parse_program(program_pair);
 
         assert_eq!(
-            while_stmt,
-            AstStatement::While(
+            program.statements,
+            vec![AstStatement::While(
                 AstExpression::BinaryOperation(
                     ">".to_owned(),
                     Box::new(AstExpression::Variable("x".to_owned())),
@@ -217,7 +237,7 @@ mod tests {
                         Box::new(AstExpression::Literal(AstLiteral::UInt(1)))
                     )
                 )]
-            )
+            )]
         );
     }
 

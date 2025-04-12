@@ -31,4 +31,5 @@ pub enum AstExpression {
     Literal(AstLiteral),
     FunctionCall(String, Vec<AstExpression>),
     Variable(String),
+    UnaryOperation(String, Box<AstExpression>),
 }
