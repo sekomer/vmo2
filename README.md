@@ -1,5 +1,8 @@
 # vmo2
 
+![ci](https://github.com/sekomer/vmo2/actions/workflows/ci.yml/badge.svg)
+[![codecov](https://codecov.io/gh/sekomer/vmo2/branch/main/graph/badge.svg)](https://codecov.io/gh/sekomer/vmo2)
+
 vmo2 repository is a collection of crates that make up the vmo2 VM project.
 
 ## Features (WIP)
