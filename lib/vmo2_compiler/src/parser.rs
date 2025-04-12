@@ -20,9 +20,6 @@ pub fn parse_statements(pair: Pair<Rule>) -> Vec<AstStatement> {
 }
 
 pub fn parse_statement(pair: Pair<Rule>) -> AstStatement {
-    println!("parse_statement: {:?}", pair.as_rule());
-    println!("pair: {:?}", pair.as_str());
-
     match pair.as_rule() {
         Rule::statement => parse_statement(pair.into_inner().next().unwrap()),
         Rule::assignment => {
@@ -55,9 +52,6 @@ pub fn parse_statement(pair: Pair<Rule>) -> AstStatement {
 }
 
 pub fn parse_expression(pair: Pair<Rule>) -> AstExpression {
-    println!("parse_expression: {:?}", pair.as_rule());
-    println!("pair: {:?}", pair.as_str());
-
     match pair.as_rule() {
         Rule::expression => parse_expression(pair.into_inner().next().unwrap()),
         Rule::literal => AstExpression::Literal(parse_literal(pair.into_inner().next().unwrap())),
@@ -88,86 +82,27 @@ pub fn parse_unary_expression(pair: Pair<Rule>) -> AstExpression {
     }
 }
 
-// pub fn parse_binary_expression(pair: Pair<Rule>) -> AstExpression {
-//     match pair.as_rule() {
-//         // Rule::equality_expr => {
-//         //     let mut inner = pair.into_inner();
-//         //     let left = parse_expression(inner.next().unwrap());
-//         //     let operator = inner.next().unwrap().as_str().to_string();
-//         //     let right = parse_expression(inner.next().unwrap());
-
-//         //     AstExpression::BinaryOperation(operator, Box::new(left), Box::new(right))
-//         // }
-//         // Rule::relational_expr => {
-//         //     let mut inner = pair.into_inner();
-//         //     let left = parse_expression(inner.next().unwrap());
-//         //     let operator = inner.next().unwrap().as_str().to_string();
-//         //     let right = parse_expression(inner.next().unwrap());
-
-//         //     AstExpression::BinaryOperation(operator, Box::new(left), Box::new(right))
-//         // }
-//         // Rule::additive_expr => {
-//         //     let mut inner = pair.into_inner();
-//         //     let left = parse_expression(inner.next().unwrap());
-//         //     let operator = inner.next().unwrap().as_str().to_string();
-//         //     let right = parse_expression(inner.next().unwrap());
-
-//         //     AstExpression::BinaryOperation(operator, Box::new(left), Box::new(right))
-//         // }
-//         Rule::additive_expr
-//         | Rule::multiplicative_expr
-//         | Rule::equality_expr
-//         | Rule::relational_expr => {
-//             println!("-2 excuse me what the fuck: {:?}", pair.as_rule());
-//             println!("-1 excuse me what the fuck: {:?}", pair.as_str());
-//             let mut inner = pair.into_inner();
-//             println!("0: inner: {}", inner.as_str());
-//             let left = parse_expression(inner.next().unwrap());
-//             println!("1: left: {:?}", left);
-
-//             if let None = inner.next() {
-//                 return left;
-//             }
-
-//             let operator = inner.next().unwrap().as_str().to_string();
-//             println!("2: operator: {}", operator);
-//             let right = parse_expression(inner.next().unwrap());
-//             println!("3: right: {:?}", right);
-
-//             AstExpression::BinaryOperation(operator, Box::new(left), Box::new(right))
-//         }
-//         Rule::unary_expr => parse_unary_expression(pair.into_inner().next().unwrap()),
-//         _ => unreachable!(),
-//     }
-// }
-
 pub fn parse_binary_expression(pair: Pair<Rule>) -> AstExpression {
-    // e.g. for equality_expr, the grammar is:
-    //     relational_expr ~ (("==" | "!=") ~ relational_expr)*
-    // so the first child is the left operand,
-    // then each operator is followed by another operand.
+    /*
+     *  parses binary and unary expressions with the following precedence:
+     *    equality_expr > relational_expr > additive_expr > multiplicative_expr > unary_expr
+     */
 
     match pair.as_rule() {
-        Rule::additive_expr
-        | Rule::multiplicative_expr
-        | Rule::equality_expr
-        | Rule::relational_expr => {
+        Rule::equality_expr
+        | Rule::relational_expr
+        | Rule::additive_expr
+        | Rule::multiplicative_expr => {
+            /*
+             * Parse first expr as left side, then combine with any additional
+             * operator-expr pairs into binary operations, building left-to-right.
+             */
             let mut inner = pair.into_inner();
             let mut left = parse_expression(inner.next().unwrap());
-            println!("left: {:?}", left);
 
-            // Now consume pairs in twos: (operator, next_operand)
-            // so that something like: relational_expr == relational_expr != relational_expr
-            // ends up as left == mid != right, building an AST step by step.
             while let Some(op_pair) = inner.next() {
-                // `op_pair` is the operator, e.g. "==" or "!="
                 let operator = op_pair.as_str().to_string();
-                println!("operator: {:?}", operator);
-
-                // The next call to `inner.next()` should be the right-hand expression
                 let right = parse_expression(inner.next().unwrap());
-                println!("right: {:?}", right);
-                // Build/chain the AST
                 left = AstExpression::BinaryOperation(operator, Box::new(left), Box::new(right));
             }
 

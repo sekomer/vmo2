@@ -12,8 +12,6 @@ pub fn deserialize(input: &Vec<u8>) -> Result<bytecode::ByteCode, Deserializatio
     let version: u8 = input[4].try_into().unwrap();
     let code = Vec::from(&input[5..]);
 
-    println!("code: {:?}", code);
-
     match version {
         1 => V1Deserializer::new().deserialize(&code),
         2 => todo!(),
