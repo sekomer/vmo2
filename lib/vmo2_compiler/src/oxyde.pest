@@ -1,59 +1,135 @@
-/*
-    * Oxyde Language Grammar
-    * This file defines the grammar for the Oxyde programming language.
-    * It is written in Pest, a PEG parser generator for Rust.
-    * @version 0.1.0
-*/
-program = { SOI ~ statement ~ (";" ~ statement)* ~ ";"? ~ EOI }
+WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
 
-// statements
-statements = { statement ~ (";" ~ statement)* }
-statement = { assignment | function_definition | while_statement | expression }
-expression = { literal | variable | function_call | binary_operation }
+// ---------------------
+// Top-level structure
+// ---------------------
 
-// assignment
-assignment = { identifier ~ "=" ~ expression }
+program = { SOI ~ statements ~ EOI }
 
-// identifier
-identifier = @{ ("_" | ASCII_ALPHA) ~ (ASCII_ALPHANUMERIC | "_")* }
+statements = { statement* }
 
-// function
-function_definition = { "func" ~ identifier ~ "(" ~ parameters? ~ ")" ~ "{" ~ statements ~ "}" }
-parameters = { identifier ~ ("," ~ identifier)* }
+// Each statement is either:
+// - assignment statement (with semicolon)
+// - expression statement (with semicolon)
+// - while statement (no semicolon)
+// - function definition (no semicolon)
+statement = {
+    assignment_stmt
+  | expression_stmt
+  | while_statement
+  | function_definition
+}
 
-// binary operation
-binary_operation = { left ~ operator ~ right }
-left = { identifier | literal }
-operator = { "+" | "-" | "*" | "/" | "%" | "==" | "!=" | ">" | "<" | ">=" | "<=" }
-right = { identifier | literal }
+// An assignment plus its trailing semicolon.
+assignment_stmt = {
+    assignment ~ ";"
+}
 
-// literal
-literal = { number | string | bool | null }
+// A bare expression plus a trailing semicolon (like `myFunc(1,2);` or `x+2;`)
+expression_stmt = {
+    expression ~ ";"
+}
 
-// variable
-variable = { identifier }
+// ---------------------
+// Compound statements
+// ---------------------
 
-// function call
-function_call = { identifier ~ "(" ~ arguments? ~ ")" }
-arguments = { expression ~ ("," ~ expression)* }
+while_statement = {
+    "while" ~ "(" ~ expression ~ ")" ~ "{" ~ statements ~ "}"
+}
 
-// while statement
-while_statement = { "while" ~ "(" ~ condition ~ ")" ~ "{" ~ statements ~ "}" }
-condition = { expression }
+function_definition = {
+    "func" ~ identifier ~ "(" ~ parameters? ~ ")" ~ "{" ~ statements ~ "}"
+}
 
-// string
-string  = @{ "\"" ~ inner ~ "\"" }
-inner   = @{ (!("\"" | "\\") ~ ANY)* ~ (escape ~ inner)? }
-escape  = @{ "\\" ~ ("\"" | "\\" | "/" | "b" | "f" | "n" | "r" | "t" | unicode) }
-unicode = @{ "u" ~ ASCII_HEX_DIGIT{4} }
+parameters = {
+    identifier ~ ("," ~ identifier)*
+}
 
-// number
-number = @{ "-"? ~ int ~ ("." ~ ASCII_DIGIT+ ~ exp? | exp)? }
+// ---------------------
+// Core expression rules
+// ---------------------
+
+expression = {
+    primary_expr
+  | equality_expr
+}
+
+equality_expr = {
+    relational_expr ~ (("==" | "!=") ~ relational_expr)*
+}
+
+relational_expr = {
+    additive_expr ~ ((">" | "<" | ">=" | "<=") ~ additive_expr)*
+}
+
+additive_expr = {
+    multiplicative_expr ~ (("+" | "-") ~ multiplicative_expr)*
+}
+
+multiplicative_expr = {
+    unary_expr ~ (("*" | "/" | "%") ~ unary_expr)*
+}
+
+unary_expr = {
+    ("+" | "-")* ~ primary_expr
+}
+
+// ---------------------
+// Primary expressions
+// ---------------------
+
+primary_expr = {
+    function_call
+  | identifier
+  | literal
+  | "(" ~ expression ~ ")"
+}
+
+function_call = {
+    identifier ~ "(" ~ arguments? ~ ")"
+}
+
+arguments = {
+    expression ~ ("," ~ expression)*
+}
+
+// ---------------------
+// Assignment & Identifier
+// ---------------------
+
+assignment = {
+    identifier ~ "=" ~ expression
+}
+
+identifier = @{
+    ("_" | ASCII_ALPHA) ~ (ASCII_ALPHANUMERIC | "_")*
+}
+
+// ---------------------
+// Literals
+// ---------------------
+
+literal = {
+    number
+  | string
+  | bool
+  | null
+}
+
+string = ${ "\"" ~ inner ~ "\"" }
+inner  = @{ char* }
+char   =  {
+    !("\"" | "\\") ~ ANY
+  | "\\" ~ ("\"" | "\\" | "/" | "b" | "f" | "n" | "r" | "t")
+  | "\\" ~ ("u" ~ ASCII_HEX_DIGIT{4})
+}
+
+number = @{
+    "-"? ~ int ~ (("." ~ ASCII_DIGIT+ ~ exp?) | exp)?
+}
 int    = @{ "0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT* }
 exp    = @{ ("E" | "e") ~ ("+" | "-")? ~ ASCII_DIGIT+ }
 
 bool = { "true" | "false" }
-
 null = { "null" }
-
-WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
