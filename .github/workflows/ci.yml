@@ -76,7 +76,9 @@ jobs:
       run: cargo tarpaulin --verbose --all-features --all --timeout 120 --out Xml
     
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
 
   security:
     runs-on: ubuntu-latest
