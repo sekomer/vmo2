@@ -182,16 +182,10 @@ mod tests {
 
     #[test]
     fn test_parse_equality_expr() {
-        let program_pair = OxydeParser::parse(
-            Rule::equality_expr,
-            r#"
-            x == 1
-            "#
-            .trim(),
-        )
-        .unwrap()
-        .next()
-        .unwrap();
+        let program_pair = OxydeParser::parse(Rule::equality_expr, r#"x == 1"#)
+            .unwrap()
+            .next()
+            .unwrap();
 
         let equality_expr = parse_expression(program_pair);
         assert_eq!(
@@ -212,8 +206,7 @@ mod tests {
                 while (x > 0) { 
                     x = x - 1; 
                 } 
-            "#
-            .trim(),
+            "#,
         )
         .unwrap()
         .next()
@@ -251,8 +244,8 @@ mod tests {
                 x = x - 1;
             }
             y = 10;
-            "#
-            .trim(),
+            x = y;
+            "#,
         )
         .unwrap()
         .next()
