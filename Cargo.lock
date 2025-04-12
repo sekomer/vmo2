@@ -481,6 +481,7 @@ name = "vmo2"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "vmo2_compiler",
  "vmo2_serde",
  "vmo2_types",
  "vmo2_vm",

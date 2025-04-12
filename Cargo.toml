@@ -7,6 +7,7 @@ edition = "2024"
 vmo2_vm = { path = "lib/vmo2_vm" }
 vmo2_types = { path = "lib/vmo2_types" }
 vmo2_serde = { path = "lib/vmo2_serde" }
+vmo2_compiler = { path = "lib/vmo2_compiler" }
 clap = { version = "4.5.35", features = ["derive"] }
 
 [[bin]]
