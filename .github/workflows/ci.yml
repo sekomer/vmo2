@@ -68,6 +68,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key: ubuntu-latest-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: ubuntu-latest-cargo-
+
     
     - name: Install cargo-tarpaulin
       run: cargo install cargo-tarpaulin
@@ -84,6 +97,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key: ubuntu-latest-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: ubuntu-latest-cargo-
+
     
     - name: Security audit
       run: |
