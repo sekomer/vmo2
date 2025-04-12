@@ -37,8 +37,6 @@ mod test {
         let serializer = Serializer::new();
         let data = serializer.serialize(&bytecode);
 
-        println!("{:?}", data);
-
         match deserialize(&data) {
             Ok(deserialized_bytecode) => assert_eq!(bytecode, deserialized_bytecode),
             Err(e) => panic!("failed to deserialize: {:?}", e),
@@ -57,8 +55,6 @@ mod test {
 
         let data = serialize(Version::V1, &bytecode);
 
-        println!("{:?}", data);
-
         match deserialize(&data) {
             Ok(deseri) => assert_eq!(bytecode, deseri),
             Err(e) => panic!("failed to deserialize: {:?}", e),
@@ -73,11 +69,9 @@ mod test {
         use vmo2_types::bytecode::ByteCode;
 
         fn test_bytecode(bytecode: ByteCode) -> bool {
-            println!("bytecode: {:?}", bytecode);
-
             let data = serialize(Version::V1, &bytecode);
-            if let Ok(deseri) = deserialize(&data) {
-                bytecode == deseri
+            if let Ok(deser) = deserialize(&data) {
+                bytecode == deser
             } else {
                 false
             }
