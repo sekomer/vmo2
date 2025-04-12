@@ -1,4 +1,9 @@
-WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
+/*
+    * Oxyde Language Grammar
+    * This file defines the grammar for the Oxyde programming language.
+    * It is written in Pest, a PEG parser generator for Rust.
+    * @version 0.1.0
+*/
 
 // ---------------------
 // Top-level structure
@@ -50,26 +55,19 @@ parameters = {
 // Core expression rules
 // ---------------------
 
+eq_op  = { "==" | "!=" }
+rel_op = { ">" | "<" | ">=" | "<=" }
+add_op = { "+" | "-" }
+mul_op = { "*" | "/" | "%" }
+
 expression = {
     equality_expr
-  | primary_expr
 }
 
-equality_expr = {
-    relational_expr ~ (("==" | "!=") ~ relational_expr)*
-}
-
-relational_expr = {
-    additive_expr ~ ((">" | "<" | ">=" | "<=") ~ additive_expr)*
-}
-
-additive_expr = {
-    multiplicative_expr ~ (("+" | "-") ~ multiplicative_expr)*
-}
-
-multiplicative_expr = {
-    unary_expr ~ (("*" | "/" | "%") ~ unary_expr)*
-}
+equality_expr       = { relational_expr ~ (eq_op ~ relational_expr)* }
+relational_expr     = { additive_expr ~ (rel_op ~ additive_expr)* }
+additive_expr       = { multiplicative_expr ~ (add_op ~ multiplicative_expr)* }
+multiplicative_expr = { unary_expr ~ (mul_op ~ unary_expr)* }
 
 unary_expr = {
     primary_expr
@@ -135,3 +133,5 @@ exp    = @{ ("E" | "e") ~ ("+" | "-")? ~ ASCII_DIGIT+ }
 
 bool = { "true" | "false" }
 null = { "null" }
+
+WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
