@@ -16,7 +16,7 @@ impl std::ops::Add for Value {
         match (self, rhs) {
             (Value::UInt(a), Value::UInt(b)) => Value::UInt(a + b),
             (Value::String(a), Value::String(b)) => Value::String(a + b.as_str()),
-            _ => todo!(),
+            _ => unreachable!(),
         }
     }
 }
@@ -27,7 +27,7 @@ impl std::ops::Sub for Value {
     fn sub(self, rhs: Self) -> Self::Output {
         match (self, rhs) {
             (Value::UInt(a), Value::UInt(b)) => Value::UInt(a - b),
-            _ => todo!(),
+            _ => unreachable!(),
         }
     }
 }
@@ -38,7 +38,9 @@ impl std::ops::Mul for Value {
     fn mul(self, rhs: Self) -> Self::Output {
         match (self, rhs) {
             (Value::UInt(a), Value::UInt(b)) => Value::UInt(a * b),
-            _ => todo!(),
+            (Value::String(a), Value::UInt(b)) => Value::String(a.repeat(b as usize)),
+            (Value::UInt(a), Value::String(b)) => Value::String(b.repeat(a as usize)),
+            _ => unreachable!(),
         }
     }
 }
@@ -49,7 +51,7 @@ impl std::ops::Div for Value {
     fn div(self, rhs: Self) -> Self::Output {
         match (self, rhs) {
             (Value::UInt(a), Value::UInt(b)) => Value::UInt(a / b),
-            _ => todo!(),
+            _ => unreachable!(),
         }
     }
 }
@@ -60,7 +62,7 @@ impl std::ops::Not for Value {
     fn not(self) -> Self::Output {
         match self {
             Value::Bool(a) => Value::Bool(!a),
-            _ => todo!(),
+            _ => unreachable!(),
         }
     }
 }
@@ -69,21 +71,21 @@ impl Value {
     pub fn and(self, rhs: Self) -> Self {
         match (self, rhs) {
             (Value::Bool(a), Value::Bool(b)) => Value::Bool(a && b),
-            _ => todo!(),
+            _ => unreachable!(),
         }
     }
 
     pub fn or(self, rhs: Self) -> Self {
         match (self, rhs) {
             (Value::Bool(a), Value::Bool(b)) => Value::Bool(a || b),
-            _ => todo!(),
+            _ => unreachable!(),
         }
     }
 
     pub fn xor(self, rhs: Self) -> Self {
         match (self, rhs) {
             (Value::Bool(a), Value::Bool(b)) => Value::Bool(a ^ b),
-            _ => todo!(),
+            _ => unreachable!(),
         }
     }
 }
