@@ -32,6 +32,30 @@ impl<'a> IrBuilder<'a> {
                 self.emit_expr(expr);
             }
             AstStatement::While(cond, body) => {
+                /*
+                             +--------------------+
+                             |    Entry Block     |
+                             | Jump to cond_block |
+                             +---------+----------+
+                                       |
+                                       v
+                              +--------+--------+
+                              |  cond_block     |
+                              | evaluate `cond` |
+                              +--------+--------+
+                                       |
+                             +---------+---------+
+                             |                   |
+                             v                   v
+                    +--------+--------+   +------+------+
+                    | body_block      |   | after_block |
+                    | emit body stmts |   | (exit loop) |
+                    | jump to cond    |   +-------------+
+                    +--------+--------+
+                             |
+                             v
+                    (back to cond_block)
+                */
                 let cond_block = self.ir.add_block();
                 let body_block = self.ir.add_block();
                 let after_block = self.ir.add_block();

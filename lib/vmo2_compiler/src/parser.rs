@@ -20,6 +20,17 @@ pub fn parse_statement(pair: Pair<Rule>) -> AstStatement {
             let expr = parse_expression(inner.next().unwrap());
             AstStatement::Assignment(identifier, expr)
         }
+        Rule::while_statement => {
+            let mut inner = pair.into_inner();
+            let condition = parse_expression(inner.next().unwrap());
+            let body = inner
+                .next()
+                .unwrap()
+                .into_inner()
+                .map(parse_statement)
+                .collect();
+            AstStatement::While(condition, body)
+        }
         Rule::expression => AstStatement::Expression(parse_expression(pair)),
         Rule::identifier => {
             AstStatement::Expression(AstExpression::Variable(pair.as_str().trim().to_string()))
@@ -33,6 +44,7 @@ pub fn parse_expression(pair: Pair<Rule>) -> AstExpression {
         Rule::expression => parse_expression(pair.into_inner().next().unwrap()),
         Rule::literal => AstExpression::Literal(parse_literal(pair.into_inner().next().unwrap())),
         Rule::variable => AstExpression::Variable(pair.as_str().to_string()),
+        Rule::condition => parse_expression(pair.into_inner().next().unwrap()),
         Rule::binary_operation => {
             let mut inner = pair.into_inner();
             let left = Box::new(parse_expression(inner.next().unwrap()));

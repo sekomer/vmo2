@@ -90,10 +90,16 @@ mod tests {
 
     #[test]
     fn test_parse_program() {
-        let program_pair = OxydeParser::parse(Rule::program, "x = 42; y = 10;")
-            .unwrap()
-            .next()
-            .unwrap();
+        let program_pair = OxydeParser::parse(
+            Rule::program,
+            r#"
+            x = 42;
+            y = 10;
+            "#,
+        )
+        .unwrap()
+        .next()
+        .unwrap();
         let program = parse_program(program_pair);
         assert_eq!(program.statements.len(), 2);
 
@@ -127,6 +133,7 @@ mod tests {
         .unwrap()
         .next()
         .unwrap();
+
         let program = parse_program(program_pair);
         assert_eq!(program.statements.len(), 3);
         assert_eq!(
@@ -144,6 +151,118 @@ mod tests {
                     String::from("b"),
                     AstExpression::Variable(String::from("temp"))
                 ),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_parse_while_true_statement() {
+        let while_pair = OxydeParser::parse(
+            Rule::while_statement,
+            r#"
+            while (true) { 
+                x = 1; 
+            } 
+            "#
+            .trim(),
+        )
+        .unwrap()
+        .next()
+        .unwrap();
+
+        let while_stmt = parse_statement(while_pair);
+
+        assert_eq!(
+            while_stmt,
+            AstStatement::While(
+                AstExpression::Literal(AstLiteral::Bool(true)),
+                vec![AstStatement::Assignment(
+                    "x".to_owned(),
+                    AstExpression::Literal(AstLiteral::UInt(1))
+                )]
+            )
+        );
+    }
+
+    #[test]
+    fn test_parse_while_with_condition_statement() {
+        let while_pair = OxydeParser::parse(
+            Rule::while_statement,
+            r#"
+                while (x > 0) { 
+                    x = x - 1; 
+                } 
+            "#
+            .trim(),
+        )
+        .unwrap()
+        .next()
+        .unwrap();
+
+        let while_stmt = parse_statement(while_pair);
+
+        assert_eq!(
+            while_stmt,
+            AstStatement::While(
+                AstExpression::BinaryOperation(
+                    ">".to_owned(),
+                    Box::new(AstExpression::Variable("x".to_owned())),
+                    Box::new(AstExpression::Literal(AstLiteral::UInt(0)))
+                ),
+                vec![AstStatement::Assignment(
+                    "x".to_owned(),
+                    AstExpression::BinaryOperation(
+                        "-".to_owned(),
+                        Box::new(AstExpression::Variable("x".to_owned())),
+                        Box::new(AstExpression::Literal(AstLiteral::UInt(1)))
+                    )
+                )]
+            )
+        );
+    }
+
+    #[test]
+    fn test_parse_while_with_after() {
+        let program_pair = OxydeParser::parse(
+            Rule::program,
+            r#"
+            while (x > 0)
+            { 
+                x = x - 1;
+            }
+            y = 10;
+            "#
+            .trim(),
+        )
+        .unwrap()
+        .next()
+        .unwrap();
+
+        let program = parse_program(program_pair);
+
+        assert_eq!(
+            program.statements,
+            vec![
+                AstStatement::While(
+                    AstExpression::BinaryOperation(
+                        ">".to_owned(),
+                        Box::new(AstExpression::Variable("x".to_owned())),
+                        Box::new(AstExpression::Literal(AstLiteral::UInt(0)))
+                    ),
+                    vec![AstStatement::Assignment(
+                        "x".to_owned(),
+                        AstExpression::BinaryOperation(
+                            "-".to_owned(),
+                            Box::new(AstExpression::Variable("x".to_owned())),
+                            Box::new(AstExpression::Literal(AstLiteral::UInt(1)))
+                        )
+                    )]
+                ),
+                AstStatement::Assignment(
+                    "y".to_owned(),
+                    AstExpression::Literal(AstLiteral::UInt(10))
+                ),
+                AstStatement::Assignment("x".to_owned(), AstExpression::Variable("y".to_owned()))
             ]
         );
     }
