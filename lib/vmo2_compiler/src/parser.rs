@@ -40,12 +40,9 @@ pub fn parse_statement(pair: Pair<Rule>) -> AstStatement {
                 .collect();
             AstStatement::While(condition, body)
         }
-        // ? asagidakiler burada olmali mi?
-        Rule::expression => {
-            AstStatement::Expression(parse_expression(pair.into_inner().next().unwrap()))
-        }
-        Rule::identifier => {
-            AstStatement::Expression(AstExpression::Variable(pair.as_str().trim().to_string()))
+        Rule::expression_stmt => {
+            let expr = parse_expression(pair.into_inner().next().unwrap());
+            AstStatement::Expression(expr)
         }
         _ => unreachable!(),
     }
@@ -54,31 +51,37 @@ pub fn parse_statement(pair: Pair<Rule>) -> AstStatement {
 pub fn parse_expression(pair: Pair<Rule>) -> AstExpression {
     match pair.as_rule() {
         Rule::expression => parse_expression(pair.into_inner().next().unwrap()),
-        Rule::literal => AstExpression::Literal(parse_literal(pair.into_inner().next().unwrap())),
         Rule::identifier => AstExpression::Variable(pair.as_str().to_string()),
-        Rule::primary_expr => parse_primary_expression(pair.into_inner().next().unwrap()),
-        Rule::string => AstExpression::Literal(AstLiteral::String(
-            pair.into_inner().next().unwrap().as_str().to_string(),
-        )),
-        Rule::inner => AstExpression::Literal(AstLiteral::String(pair.as_str().to_string())),
+        Rule::string | Rule::inner => {
+            AstExpression::Literal(parse_literal(pair.into_inner().next().unwrap()))
+        }
         Rule::equality_expr
         | Rule::relational_expr
         | Rule::additive_expr
         | Rule::multiplicative_expr => parse_binary_expression(pair),
-        Rule::unary_expr => parse_unary_expression(pair.into_inner().next().unwrap()),
+        Rule::unary_expr => parse_unary_expression(pair),
         _ => unreachable!(),
     }
 }
 
 pub fn parse_unary_expression(pair: Pair<Rule>) -> AstExpression {
-    let mut inner = pair.into_inner();
-    let first = inner.clone().next().unwrap();
-    if first.as_str() == "+" || first.as_str() == "-" {
-        let operator = first.as_str().to_string();
-        let expr = parse_primary_expression(inner.next().unwrap());
-        AstExpression::UnaryOperation(operator, Box::new(expr))
-    } else {
-        parse_primary_expression(inner.next().unwrap())
+    match pair.as_rule() {
+        Rule::unary_expr => {
+            let mut inner = pair.into_inner();
+            let first = inner.next().unwrap();
+
+            // if it's a primary_expr, just parse it directly
+            if first.as_rule() == Rule::primary_expr {
+                return parse_primary_expression(first);
+            }
+
+            // otherwise it's a unary operation
+            let operator = first.as_str().to_string();
+            let expr = parse_primary_expression(inner.next().unwrap());
+            AstExpression::UnaryOperation(operator, Box::new(expr))
+        }
+        Rule::primary_expr => parse_primary_expression(pair),
+        _ => unreachable!(),
     }
 }
 
@@ -113,10 +116,37 @@ pub fn parse_binary_expression(pair: Pair<Rule>) -> AstExpression {
     }
 }
 
+pub fn parse_arguments(pair: Pair<Rule>) -> Vec<AstExpression> {
+    match pair.as_rule() {
+        Rule::arguments => {
+            let mut args = Vec::new();
+            let mut inner = pair.into_inner();
+
+            while let Some(arg) = inner.next() {
+                args.push(parse_expression(arg));
+            }
+
+            args
+        }
+        _ => unreachable!(),
+    }
+}
+
 pub fn parse_primary_expression(pair: Pair<Rule>) -> AstExpression {
     match pair.as_rule() {
         Rule::identifier => AstExpression::Variable(pair.as_str().to_string()),
         Rule::literal => AstExpression::Literal(parse_literal(pair.into_inner().next().unwrap())),
+        Rule::function_call => {
+            let mut inner = pair.into_inner();
+            let name = inner.next().unwrap().as_str().to_string();
+            let args = if let Some(args_pair) = inner.next() {
+                parse_arguments(args_pair)
+            } else {
+                Vec::new()
+            };
+            AstExpression::FunctionCall(name, args)
+        }
+        Rule::primary_expr => parse_primary_expression(pair.into_inner().next().unwrap()),
         _ => unreachable!(),
     }
 }
@@ -126,6 +156,11 @@ pub fn parse_literal(pair: Pair<Rule>) -> AstLiteral {
         Rule::number => AstLiteral::UInt(pair.as_str().parse().unwrap()),
         Rule::bool => AstLiteral::Bool(pair.as_str().parse().unwrap()),
         Rule::null => AstLiteral::Null,
+        Rule::string => {
+            let inner = pair.into_inner().next().unwrap();
+            AstLiteral::String(inner.as_str().to_string())
+        }
+        Rule::inner => AstLiteral::String(pair.as_str().to_string()),
         _ => unreachable!(),
     }
 }

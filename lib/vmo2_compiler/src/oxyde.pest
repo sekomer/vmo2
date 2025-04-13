@@ -69,10 +69,11 @@ relational_expr     = { additive_expr ~ (rel_op ~ additive_expr)* }
 additive_expr       = { multiplicative_expr ~ (add_op ~ multiplicative_expr)* }
 multiplicative_expr = { unary_expr ~ (mul_op ~ unary_expr)* }
 
+unary_op = { "+" | "-" }
+
 unary_expr = {
     primary_expr
-  | ("+" ~ primary_expr)
-  | ("-" ~ primary_expr)
+  | (unary_op ~ primary_expr)
 }
 
 // ---------------------
